@@ -1,3 +1,9 @@
+from quopri import decodestring
+
+from r2_framework.services import HTTPMethod
+from r2_framework.r2_requests import GetRequests, PostRequests
+
+
 class PageNotFound404:
     def __call__(self, request, *args, **kwargs):
         return '404 WHAT', '404 Page Not Found'
@@ -23,7 +29,20 @@ class Framework:
             view = self.routes_lst[path]
         else:
             view = PageNotFound404()
+
         request = {}
+        method = environ['REQUEST_METHOD']
+        request['method'] = method
+
+        if method == HTTPMethod.post:
+            data = PostRequests().get_request_params(environ)
+            request['data'] = Framework.decode_value(data)
+            print(f'Нам пришёл post-запрос: {Framework.decode_value(data)}')
+        if method == HTTPMethod.get:
+            request_params = GetRequests().get_request_params(environ)
+            request['request_params'] = Framework.decode_value(request_params)
+            print(f'Нам пришли GET-параметры:'
+                  f' {Framework.decode_value(request_params)}')
 
         # Add elements to request dict
         # request dict get all controllers (front controller pattern)
@@ -34,3 +53,13 @@ class Framework:
         code, body = view(request)
         start_response(code, [('Content-Type', 'text/html')])
         return [body.encode('utf-8')]
+
+    @staticmethod
+    def decode_value(data):
+        """ Replace value in data dictionary to right format. """
+        new_data = {}
+        for k, v in data.items():
+            val = bytes(v.replace('%', '=').replace("+", " "), 'UTF-8')
+            val_decode_str = decodestring(val).decode('UTF-8')
+            new_data[k] = val_decode_str
+        return new_data
