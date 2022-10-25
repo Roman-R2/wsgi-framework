@@ -2,40 +2,53 @@ from datetime import date
 
 from r2_framework.templator import render
 from patterns.сreational_patterns import Engine, Logger
+from patterns.structural_patterns import AppRoute, Debug
 
 site = Engine()
 logger = Logger('main')
 
+routes = {}
 
+
+@AppRoute(routes=routes, url='/')
 class Index:
+    @Debug(name='Index')
     def __call__(self, request, *args, **kwargs):
         return '200 OK', render('index.html',
                                 date=request.get('date', None))
 
 
+@AppRoute(routes=routes, url='/about/')
 class About:
+    @Debug(name='About')
     def __call__(self, request, *args, **kwargs):
         return '200 OK', render('about.html')
 
 
+@AppRoute(routes=routes, url='/code/')
 class Code:
+    @Debug(name='Code')
     def __call__(self, request, *args, **kwargs):
         return '200 OK', render('code.html')
 
 
 # контроллер - Расписания
+@AppRoute(routes=routes, url='/study_programs/')
 class StudyPrograms:
+    @Debug(name='StudyPrograms')
     def __call__(self, request):
         return '200 OK', render('study-programs.html', date=date.today())
 
 
 # контроллер 404
 class NotFound404:
+    @Debug(name='NotFound404')
     def __call__(self, request):
         return '404 WHAT', '404 PAGE Not Found'
 
 
 # контроллер - список курсов
+@AppRoute(routes=routes, url='/courses-list/')
 class CoursesList:
     def __call__(self, request):
         logger.log('Список курсов')
@@ -50,6 +63,7 @@ class CoursesList:
 
 
 # контроллер - создать курс
+@AppRoute(routes=routes, url='/create-course/')
 class CreateCourse:
     category_id = -1
 
@@ -86,6 +100,7 @@ class CreateCourse:
 
 
 # контроллер - создать категорию
+@AppRoute(routes=routes, url='/create-category/')
 class CreateCategory:
     def __call__(self, request):
 
@@ -115,6 +130,7 @@ class CreateCategory:
 
 
 # контроллер - список категорий
+@AppRoute(routes=routes, url='/category-list/')
 class CategoryList:
     def __call__(self, request):
         logger.log('Список категорий')
@@ -122,6 +138,7 @@ class CategoryList:
                                 objects_list=site.categories)
 
 
+@AppRoute(routes=routes, url='/copy-course/')
 # контроллер - копировать курс
 class CopyCourse:
     def __call__(self, request):
