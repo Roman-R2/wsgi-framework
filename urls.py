@@ -16,15 +16,15 @@ def other_front(request):
 
 fronts = [secret_front, other_front]
 
-routes = {
-    '/': Index(),
-    '/code/': Code(),
-    '/about/': About(),
-
-    '/study_programs/': StudyPrograms(),
-    '/courses-list/': CoursesList(),
-    '/create-course/': CreateCourse(),
-    '/create-category/': CreateCategory(),
-    '/category-list/': CategoryList(),
-    '/copy-course/': CopyCourse()
-}
+# routes = {
+#     '/': Index(),
+#     '/code/': Code(),
+#     '/about/': About(),
+#
+#     '/study_programs/': StudyPrograms(),
+#     '/courses-list/': CoursesList(),
+#     '/create-course/': CreateCourse(),
+#     '/create-category/': CreateCategory(),
+#     '/category-list/': CategoryList(),
+#     '/copy-course/': CopyCourse()
+# }
