@@ -1,7 +1,8 @@
 from datetime import date
 
+from patterns.architectural_system_pattern_unit_of_work import UnitOfWork
 from r2_framework.templator import render
-from patterns.сreational_patterns import Engine, Logger
+from patterns.сreational_patterns import Engine, Logger, MapperRegistry
 from patterns.structural_patterns import AppRoute, Debug
 from patterns.behavioral_patterns import EmailNotifier, SmsNotifier, \
     ListView, CreateView, BaseSerializer
@@ -10,6 +11,8 @@ site = Engine()
 logger = Logger('main')
 email_notifier = EmailNotifier()
 sms_notifier = SmsNotifier()
+UnitOfWork.new_current()
+UnitOfWork.get_current().set_mapper_registry(MapperRegistry)
 
 routes = {}
 
@@ -175,6 +178,10 @@ class StudentListView(ListView):
     queryset = site.students
     template_name = 'student_list.html'
 
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('student')
+        return mapper.all()
+
 
 @AppRoute(routes=routes, url='/create-student/')
 class StudentCreateView(CreateView):
@@ -185,6 +192,8 @@ class StudentCreateView(CreateView):
         name = site.decode_value(name)
         new_obj = site.create_user('student', name)
         site.students.append(new_obj)
+        new_obj.mark_new()
+        UnitOfWork.get_current().commit()
 
 
 @AppRoute(routes=routes, url='/add-student/')
